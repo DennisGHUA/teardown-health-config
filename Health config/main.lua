@@ -8,11 +8,12 @@ local newHealth = 1
 local modHealth = 1
 local healthTimeout = 0
 local godmode = false
+local lastTimePlayedIsDamaged = 0
 
 -- Settings
 local changeHealthDrain = 1.0
-local healthGain = 0.001
-local healthGainTimeout = 120
+local healthGain = 0.0016
+local healthGainTimeout = 0
 local alwaysShowHealthBar = 1 -- 1 is false 2 is true
 local godmodeButton = "G"
 local respawnInstantly = false
@@ -32,14 +33,15 @@ function init()
 	changeHealthDrain = GetInt("savegame.mod.healthMultiplier")
 	--DebugPrint(changeHealthDrain)
 	if changeHealthDrain == nil or changeHealthDrain == 0 then changeHealthDrain = 1.0 else changeHealthDrain = changeHealthDrain/100 end
-	--DebugPrint(changeHealthDrain)
+	--DebugPrint(GetInt("savegame.mod.healthMultiplier"))
 	
 	healthGain = GetInt("savegame.mod.healingSpeed")
-	if healthGain == nil or healthGain == 0 then healthGain = 0.001 else healthGain = healthGain/10000 end
-	if GetInt("savegame.mod.healingSpeed") == 1000 then healthGain = 0 end
+	if healthGain == nil or healthGain == 0 then healthGain = 0.0016 else healthGain = healthGain/10000 end
+	if GetInt("savegame.mod.healingSpeed") == 10000 then healthGain = 0 end
+	--DebugPrint(GetInt("savegame.mod.healingSpeed"))
 	
 	healthGainTimeout = GetInt("savegame.mod.healingTimeout")
-	if healthGainTimeout == nil or healthGainTimeout == 0 then healthGainTimeout = 120 end
+	if healthGainTimeout == nil or healthGainTimeout == 0 then healthGainTimeout = 0 end
 	if GetInt("savegame.mod.healingTimeout") == 1000 then healthGainTimeout = 0 end
 	
 	if godmode == false then 
@@ -53,7 +55,13 @@ function init()
 	end
 end
 
+--local testlastHealth = 0
 function tick(dt)
+	--[[if testlastHealth-GetPlayerHealth() < 0 then
+		DebugPrint(testlastHealth-GetPlayerHealth())
+	end
+	testlastHealth = GetPlayerHealth()]]--
+
 	if godmode == false then
 	
 		-- Kill player if health is below 0
@@ -62,7 +70,7 @@ function tick(dt)
 		-- Healing timeout
 		if modHealth < 1 and healthTimeout > 0 then
 			healthTimeout = healthTimeout - 1
-		else
+		elseif lastTimePlayedIsDamaged > 5 then
 			-- Heal player
 			if modHealth > 0 and modHealth < 1 then
 				modHealth = modHealth + (healthGain *(1/changeHealthDrain))
@@ -112,11 +120,18 @@ function draw(dt)
 		
 		-- Calculate damage
 		if currentHealth - lastHealth > 0 then
+			lastTimePlayedIsDamaged = 0
 			--DebugPrint(changeHealthDrain)
 			modHealth = modHealth - ((currentHealth - lastHealth) * (1/changeHealthDrain))
 			--DebugPrint(currentHealth - lastHealth)
+		else
+			if lastTimePlayedIsDamaged < 10 then
+				lastTimePlayedIsDamaged = lastTimePlayedIsDamaged + 1
+			end
 		end
-		
+		--[[if lastTimePlayedIsDamaged > 1 then
+			DebugPrint(lastTimePlayedIsDamaged)
+		end]]--
 		
 		-- Update lastHealth
 		if GetPlayerHealth() > 0 then -- This line prevents low health after dieing

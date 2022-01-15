@@ -9,10 +9,12 @@ local healthTimeout = 0
 -- Options.lua
 healthMultiplierView = 1*60
 healthMultiplier=1*60
-healingSpeed = 0.001*60000
+healingSpeed = 0.0016*60000
 healingSpeedView = 0.001*60000
-healingTimeout = 120*2
-healingTimeoutView = 120*2
+--healingTimeout = 120*2
+--healingTimeoutView = 120*2
+healingTimeout = 0
+healingTimeoutView = 0
 
 -- Settings
 local changeHealthDrain = 0.5
@@ -42,12 +44,12 @@ function init()
 	--DebugPrint(changeHealthDrain)
 	
 	healingSpeed = GetInt("savegame.mod.healingSpeed")
-	if healingSpeed == nil or healingSpeed == 0 then healingSpeed = 0.001 else healingSpeed = healingSpeed/10000 end
+	if healingSpeed == nil or healingSpeed == 0 then healingSpeed = 0.0016 else healingSpeed = healingSpeed/10000 end
 	if GetInt("savegame.mod.healingSpeed") == 10000 then healingSpeed = 0 end
 	healingSpeed=healingSpeed*60000
 	
 	healingTimeout = GetInt("savegame.mod.healingTimeout")
-	if healingTimeout == nil or healingTimeout == 0 then healingTimeout = 120 end
+	if healingTimeout == nil or healingTimeout == 0 then healingTimeout = 0 end
 	if GetInt("savegame.mod.healingTimeout") == 1000 then healingTimeout = 0 end
 	healingTimeout=healingTimeout*2
 end
@@ -211,10 +213,10 @@ function draw()
 			-- Options.lua
 			healthMultiplierView = 1*60
 			healthMultiplier=1*60
-			healingSpeed = 0.001*60000
+			healingSpeed = 0.0016*60000
 			healingSpeedView = 0.001*60000
-			healingTimeout = 120*2
-			healingTimeoutView = 120*2
+			healingTimeout = 0 --120*2
+			healingTimeoutView = 0 --120*2
 
 			-- Settings
 			changeHealthDrain = 0.5
@@ -232,6 +234,7 @@ function draw()
 			SetString("savegame.mod.godmodeKey", godmodeKey)
 			SetInt("savegame.mod.alwaysShowHealthBar", alwaysShowHealthBar)
 			SetBool("savegame.mod.makeScreenRed", makeScreenRed)
+			if healthMultiplierView == 0 then healthMultiplierView = 1 end
 			SetInt("savegame.mod.healthMultiplier", healthMultiplierView*100)
 			if healingSpeedView == 0 then healingSpeedView = 1 end
 			SetInt("savegame.mod.healingSpeed", healingSpeedView*10000)
