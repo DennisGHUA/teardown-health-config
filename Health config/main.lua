@@ -9,6 +9,16 @@ local modHealth = 1
 local healthTimeout = 0
 local godmode = false
 local lastTimePlayedIsDamaged = 0
+local damageTaken = 0
+local newLastHealth = 0
+local remainingDamage = 0
+
+
+local damagePrecision = 100000000
+
+local currentHealth = 1*damagePrecision
+local lastHealth = 1*damagePrecision
+
 
 -- Settings
 local changeHealthDrain = 1.0
@@ -50,7 +60,7 @@ function init()
 		
 		-- Update lastHealth
 		modHealth = 1
-		lastHealth = 1
+		lastHealth = 1*damagePrecision
 		healthTimeout = healthGainTimeout
 	end
 end
@@ -70,10 +80,11 @@ function tick(dt)
 		-- Healing timeout
 		if modHealth < 1 and healthTimeout > 0 then
 			healthTimeout = healthTimeout - 1
-		elseif lastTimePlayedIsDamaged > 5 then
+		elseif lastTimePlayedIsDamaged > 10 and remainingDamage <= 0 and damageTaken <= 0 then
 			-- Heal player
+			--DebugPrint("Healing")
 			if modHealth > 0 and modHealth < 1 then
-				modHealth = modHealth + (healthGain *(1/changeHealthDrain))
+				modHealth = modHealth + (healthGain *(1.0/changeHealthDrain))
 				if modHealth >= 1 then
 					healthTimeout = healthGainTimeout
 				end
@@ -103,7 +114,6 @@ function update(dt)
 	end
 end
 
-
 function draw(dt)
 
 	if godmode == false then 
@@ -116,31 +126,67 @@ function draw(dt)
 
 
 		-- Get current health
-		currentHealth = GetPlayerHealth()
+		currentHealth = math.floor(GetPlayerHealth()*damagePrecision)
 		
 		-- Calculate damage
-		if currentHealth - lastHealth > 0 then
-			lastTimePlayedIsDamaged = 0
-			--DebugPrint(changeHealthDrain)
-			modHealth = modHealth - ((currentHealth - lastHealth) * (1/changeHealthDrain))
-			--DebugPrint(currentHealth - lastHealth)
-		else
-			if lastTimePlayedIsDamaged < 10 then
-				lastTimePlayedIsDamaged = lastTimePlayedIsDamaged + 1
-			end
-		end
-		--[[if lastTimePlayedIsDamaged > 1 then
-			DebugPrint(lastTimePlayedIsDamaged)
+		--[[if currentHealth - lastHealth > 0 then
+			DebugPrint(currentHealth - lastHealth)
 		end]]--
+		damageTaken = math.floor(math.floor(math.floor(currentHealth) - math.floor(lastHealth))) * - 1
+		--DebugPrint(math.floor(currentHealth*100000))
+		--DebugPrint(math.floor(lastHealth*100000))
+		if damageTaken < 0 then -- Healing instead of taking damage
+			damageTaken = 0
+		end
+		--[[if damageTaken > 0 then
+			DebugPrint(damageTaken)
+			DebugPrint(remainingDamage)
+		end]]--
+		--damageTaken = 0
 		
 		-- Update lastHealth
 		if GetPlayerHealth() > 0 then -- This line prevents low health after dieing
-			lastHealth = GetPlayerHealth()
+			newLastHealth = GetPlayerHealth()*damagePrecision
 		end
+		
+		-- Calculate damage
+		if damageTaken > 0 then
+			lastTimePlayedIsDamaged = 0
+			--DebugPrint(changeHealthDrain)
+			modHealth = modHealth - (math.floor((damageTaken * (1/changeHealthDrain)) + math.floor(remainingDamage * (1/changeHealthDrain)))/damagePrecision)
+			--DebugPrint(currentHealth - lastHealth)
+		else
+			if lastTimePlayedIsDamaged < 100 then
+				lastTimePlayedIsDamaged = lastTimePlayedIsDamaged + 1
+			end
+		end
+		--[[if lastTimePlayedIsDamaged > 2 then
+			DebugPrint(lastTimePlayedIsDamaged)
+		end]]--
+		
+		
+		if GetPlayerHealth() > 0 then -- This line prevents low health after dieing
+			lastHealth = newLastHealth
+		end
+		
 		
 		-- Never show real health bar
 		if modHealth > 0 and GetPlayerHealth() > 0 then
+			remainingDamage=math.floor(damagePrecision-(math.floor(GetPlayerHealth()*damagePrecision)+math.floor(damageTaken))) -- positive value
 			SetPlayerHealth(1)
+			--remainingDamage = math.abs(remainingDamage)
+			if remainingDamage < 0 then -- Healing instead of taking damage
+				remainingDamage = 0
+			end
+			
+			--[[if damageTaken < 0 or damageTaken > 0 or remainingDamage < 0 or remainingDamage > 0 then
+				DebugPrint("damageTaken")
+				DebugPrint(damageTaken/damagePrecision)
+				DebugPrint("remainingDamage")
+				DebugPrint(remainingDamage/damagePrecision)
+			end]]--
+			
+			damageTaken = 0
 		end
 		
 		-- Draw HEALTH text
