@@ -260,6 +260,10 @@ function killPlayer()
 		-- Kill player
 		SetPlayerHealth(0)
 		modHealth = -1
+		
+		-- Prevent visual glitch
+		remainingDamage = 0
+		damageTaken = 0
 
 		-- Heal it when dead
 		if modHealth <= 0 and revivePlayer > 0 then
