@@ -17,42 +17,24 @@ healingTimeout = 0
 healingTimeoutView = 0
 
 -- Settings
-local changeHealthDrain = 0.5
+local changeHealthDrain = 1.0
 local healthGain = 0.001
 local healthGainTimeout = 120
 local alwaysShowHealthBar = 1 -- 1 is false 2 is true
-local godmode = false
-local makeScreenRed = true
+local godmode = false -- not used here
+local screenEffectRed = "true"
+local screenEffectBlur = "true"
+local godmodeEnabledDefault = "false"
+local godmodeHideText = "false"
 
 local godmodeKey = "G"
 
 function init()
-	-- Load config
-	godmodeKey = GetString("savegame.mod.godmodeKey")
-	if godmodeKey == "" or godmodeKey == nil then godmodeKey = "G" end
+
+	loadSettings()
 	
-	alwaysShowHealthBar = GetInt("savegame.mod.alwaysShowHealthBar")
-	if alwaysShowHealthBar < 1 then alwaysShowHealthBar = 1 end
-	
-	makeScreenRed = GetBool("savegame.mod.makeScreenRed")
-	if makeScreenRed == nil then makeScreenRed = true end
-	
-	healthMultiplier = GetInt("savegame.mod.healthMultiplier")
-	--DebugPrint(changeHealthDrain)
-	if healthMultiplier == nil or healthMultiplier == 0 then healthMultiplier = 1.0 else healthMultiplier = healthMultiplier/100 end
-	healthMultiplier = healthMultiplier*60
-	--DebugPrint(changeHealthDrain)
-	
-	healingSpeed = GetInt("savegame.mod.healingSpeed")
-	if healingSpeed == nil or healingSpeed == 0 then healingSpeed = 0.0016 else healingSpeed = healingSpeed/10000 end
-	if GetInt("savegame.mod.healingSpeed") == 10000 then healingSpeed = 0 end
-	healingSpeed=healingSpeed*60000
-	
-	healingTimeout = GetInt("savegame.mod.healingTimeout")
-	if healingTimeout == nil or healingTimeout == 0 then healingTimeout = 0 end
-	if GetInt("savegame.mod.healingTimeout") == 1000 then healingTimeout = 0 end
-	healingTimeout=healingTimeout*2
 end
+
 
 function draw()
 	-- Setup safe drawing area
@@ -65,7 +47,7 @@ function draw()
 	UiPush()
 		UiColor(1,1,1)
 		UiFont("bold.ttf", 32)
-		UiTranslate(UiCenter(), 128)
+		UiTranslate(UiCenter(), 64)
 		UiAlign("center middle")
 		UiText("Health Config mod by Jos Badpak")
 	UiPop()
@@ -78,7 +60,7 @@ function draw()
 		local healthGainTimeout = 120
 		local alwaysShowHealthBar = 2 -- 1 is false 2 is true
 		local godmode = false
-		local makeScreenRed = true
+		local screenEffectRed = true
 		
 	]]--
 	UiPush()
@@ -88,12 +70,41 @@ function draw()
 	UiAlign("center middle")
 	UiButtonImageBox("ui/common/box-outline-6.png", 6, 6)
 	
+		-- Enable godmode by default
+		UiAlign("center middle")
+		UiTranslate(0, -800)
+		if UiTextButton("Enable godmode by default", 300, 40) then
+			if godmodeEnabledDefault == "true" then
+				godmodeEnabledDefault = "false"
+			else
+				godmodeEnabledDefault = "true"
+			end
+		end
+		UiTranslate(180, 0)
+		UiAlign("left middle")
+		drawUiStatus(godmodeEnabledDefault)
+		
+		-- Hide godmode text
+		UiAlign("center middle")
+		UiTranslate(-180, 64)
+		if UiTextButton("Fade away godmode text", 300, 40) then
+			if godmodeHideText == "true" then
+				godmodeHideText = "false"
+			else
+				godmodeHideText = "true"
+			end
+		end
+		UiTranslate(180, 0)
+		UiAlign("left middle")
+		drawUiStatus(godmodeHideText)
+	
 		-- Toggle godmode key
-		UiTranslate(0, -600)
-		if UiTextButton("Toggle godmode key", 240, 40) then
+		UiTranslate(-330, 64)
+		UiAlign("left middle")
+		if UiTextButton("Toggle godmode key", 300, 40) then
 			godmodeKey = ""
 		end
-		UiTranslate(128, 0)
+		UiTranslate(330, 0)
 		UiAlign("left middle")
 		if godmodeKey == "" then
 			UiText("Press any key")
@@ -101,41 +112,53 @@ function draw()
 			UiText(godmodeKey)
 		end
 		
+		UiTranslate(0, 64)
+		
 		-- Always show health bar
 		UiAlign("center middle")
-		UiTranslate(-128, 64)
-		if UiTextButton("Always show health bar", 240, 40) then
+		UiTranslate(-180, 64)
+		if UiTextButton("Health bar always on screen", 300, 40) then
 			if alwaysShowHealthBar == 1 then
 				alwaysShowHealthBar = 2
 			else
 				alwaysShowHealthBar = 1
 			end
 		end
-		UiTranslate(128, 0)
+		UiTranslate(180, 0)
 		UiAlign("left middle")
 		if alwaysShowHealthBar == 1 then
-			UiText("False")
+			drawUiStatus(false)
 		else
-			UiText("True")
+			drawUiStatus(true)
 		end
 		
 		-- Red screen on low health
 		UiAlign("center middle")
-		UiTranslate(-128, 64)
-		if UiTextButton("Red screen on low health", 240, 40) then
-			if makeScreenRed == true then
-				makeScreenRed = false
+		UiTranslate(-180, 64)
+		if UiTextButton("Red screen on low health", 300, 40) then
+			if screenEffectRed == "true" then
+				screenEffectRed = "false"
 			else
-				makeScreenRed = true
+				screenEffectRed = "true"
 			end
 		end
-		UiTranslate(128, 0)
+		UiTranslate(180, 0)
 		UiAlign("left middle")
-		if makeScreenRed == true then
-			UiText("True")
-		else
-			UiText("False")
+		drawUiStatus(screenEffectRed)
+		
+		-- Screen blur on low health
+		UiAlign("center middle")
+		UiTranslate(-180, 64)
+		if UiTextButton("Screen blur on low health", 300, 40) then
+			if screenEffectBlur == "true" then
+				screenEffectBlur = "false"
+			else
+				screenEffectBlur = "true"
+			end
 		end
+		UiTranslate(180, 0)
+		UiAlign("left middle")
+		drawUiStatus(screenEffectBlur)
 		
 		-- Mark default
 		--[[UiTranslate(-368, 128)
@@ -144,59 +167,75 @@ function draw()
 		UiColor(1,1,1)
 		UiTranslate(368,-128)]]--
 		
+		UiTranslate(-32, 16)
+		
 		-- Health Multiplier
-		UiAlign("center middle")
+		UiAlign("left middle")
 		UiTranslate(-128, 64)
+		UiTranslate(-300, 0)
 		UiText("Health multiplier")
+		UiTranslate(300, 0)
 		UiColor(1,1,1)
 		UiTranslate(-300, 32)
+		UiAlign("center middle")
 		healthMultiplier = UiSlider("ui/common/dot.png", "x", healthMultiplier, 0, 600)
 		healthMultiplierView = healthMultiplier/60
 		healthMultiplierView = math.floor(healthMultiplierView*100+0.5)/100
 		UiTranslate(300, 0)
 		UiRect(600, 4)
-		UiAlign("left middle")
+		UiAlign("right middle")
 		UiTranslate(160, -32)
+		UiTranslate(140, 0)
 		if healthMultiplierView <= 0 then
 			healthMultiplierView = 0.01
 		end
-		UiText(healthMultiplierView)
+		UiText(string.format("%.0f%s (%.2f)", 100*healthMultiplierView, "%", healthMultiplierView))
+		UiTranslate(-140, 0)
 		
 		-- Healing Speed
-		UiAlign("center middle")
+		UiAlign("left middle")
 		UiTranslate(-32, 32)
 		UiTranslate(-128, 32)
+		UiTranslate(-300, 0)
 		UiText("Healing speed")
+		UiTranslate(300, 0)
 		UiColor(1,1,1)
 		UiTranslate(-300, 32)
+		UiAlign("center middle")
 		healingSpeed = UiSlider("ui/common/dot.png", "x", healingSpeed, 0, 600)
 		healingSpeedView = healingSpeed/60000
 		healingSpeedView = math.floor(healingSpeedView*10000+0.5)/10000
 		UiTranslate(300, 0)
 		UiRect(600, 4)
-		UiAlign("left middle")
-		UiTranslate(160, -32)
-		UiText(healingSpeedView)
+		UiAlign("right middle")
+		UiTranslate(300, -32)
+		UiText(string.format("%i%s  (%.4f)", (100/16)*healingSpeedView*10000, "%", healingSpeedView))
+		UiTranslate(-300, 0)
+		UiTranslate(160, 0)
 		
 		-- Healing Timeout
-		UiAlign("center middle")
+		UiAlign("left middle")
 		UiTranslate(-32, 32)
 		UiTranslate(-128, 32)
-		UiText("Timeout before healing (frames)")
+		UiTranslate(-300, 0)
+		UiText("Timeout before being healed")
+		UiTranslate(300, 0)
 		UiColor(1,1,1)
 		UiTranslate(-300, 32)
+		UiAlign("center middle")
 		healingTimeout = UiSlider("ui/common/dot.png", "x", healingTimeout, 0, 600)
 		healingTimeoutView = healingTimeout/2
 		healingTimeoutView = math.floor(healingTimeoutView+0.5)
 		UiTranslate(300, 0)
 		UiRect(600, 4)
-		UiAlign("left middle")
-		UiTranslate(160, -32)
-		UiText(healingTimeoutView)
-		UiTranslate(96, 0)
-		UiText(math.floor(healingTimeoutView/6+0.5)/10)
-		UiTranslate(32, 0)
-		UiText("Seconds")
+		UiAlign("right middle")
+		UiTranslate(300, -32)
+		--UiText(healingTimeoutView)
+		UiText(string.format("%.2f %s  (%.0f frames)", math.floor((healingTimeoutView/6)*10)/100, "sec", healingTimeoutView))
+		--UiTranslate(96, 0)
+		--UiText(math.floor(healingTimeoutView/6+0.5)/10)
+		--UiTranslate(32, 0)
+		--UiText("Seconds")
 	UiPop()
 	
 	
@@ -223,23 +262,22 @@ function draw()
 			healthGain = 0.001
 			healthGainTimeout = 120
 			alwaysShowHealthBar = 1 -- 1 is false 2 is true
-			godmode = false
-			makeScreenRed = true
+			godmode = "false"
+			screenEffectRed = "true"
 			godmodeKey = "G"
+			
+			-- New features
+			screenEffectBlur = "true"
+			godmodeEnabledDefault = "false"
+			godmodeHideText = "false"
+			
 		end
 		
 		-- Save
 		UiTranslate(-256, 0)
 		if UiTextButton("Save & close", 200, 40) then
-			SetString("savegame.mod.godmodeKey", godmodeKey)
-			SetInt("savegame.mod.alwaysShowHealthBar", alwaysShowHealthBar)
-			SetBool("savegame.mod.makeScreenRed", makeScreenRed)
-			if healthMultiplierView == 0 then healthMultiplierView = 1 end
-			SetInt("savegame.mod.healthMultiplier", healthMultiplierView*100)
-			if healingSpeedView == 0 then healingSpeedView = 1 end
-			SetInt("savegame.mod.healingSpeed", healingSpeedView*10000)
-			if healingTimeoutView == 0 then healingTimeoutView = 1000 end
-			SetInt("savegame.mod.healingTimeout", healingTimeoutView)
+			saveSettings()
+			
 			Menu()
 		end
 	
@@ -256,6 +294,128 @@ function draw()
 	
 	
 	
+end
+
+function loadSettings()
+
+	local updateSettingsFile = false
+
+	-- Enable godmode by default
+	godmodeEnabledDefault = GetString("savegame.mod.godmodeEnabledDefault")
+	if godmodeEnabledDefault == "" then 
+		godmodeEnabledDefault = "false" 
+		updateSettingsFile = true
+	end
+	-- Code - apply godmode settings
+	if godmodeEnabledDefault == "true" then
+		godmode = true
+	end
+	
+	-- Fade away godmode text
+	godmodeHideText = GetString("savegame.mod.godmodeHideText")
+	if godmodeHideText == "" then 
+		godmodeHideText = "false"
+		updateSettingsFile = true
+	end
+	
+	-- Toggle godmode key
+	godmodeKey = GetString("savegame.mod.godmodeKey")
+	if godmodeKey == "" or godmodeKey == nil then
+		godmodeKey = "G"
+		updateSettingsFile = true
+	end
+	
+	
+	
+	-- Health bar always on screen
+	alwaysShowHealthBar = GetInt("savegame.mod.alwaysShowHealthBar")
+	if alwaysShowHealthBar < 1 then
+		alwaysShowHealthBar = 1
+		updateSettingsFile = true
+	end
+	
+	-- Red screen on low health
+	screenEffectRed = GetString("savegame.mod.screenEffectRed")
+	if screenEffectRed == "" then
+		screenEffectRed = "true" 
+		updateSettingsFile = true
+	end
+	
+	-- Screen blur on low health
+	screenEffectBlur = GetString("savegame.mod.screenEffectBlur")
+	if screenEffectBlur == "" then
+		screenEffectBlur = "true"
+		updateSettingsFile = true
+	end
+	
+	
+	
+	-- Health multiplier
+	healthMultiplier = GetInt("savegame.mod.healthMultiplier")
+	if healthMultiplier == nil or healthMultiplier == 0 then
+		healthMultiplier = 1.0
+	else 
+		healthMultiplier = healthMultiplier/100 
+	end
+	healthMultiplier = healthMultiplier*60
+	
+	
+	-- Healing speed
+	healingSpeed = GetInt("savegame.mod.healingSpeed")
+	if healingSpeed == nil or healingSpeed == 0 then healingSpeed = 0.0016 else healingSpeed = healingSpeed/10000 end
+	if GetInt("savegame.mod.healingSpeed") == 10000 then healingSpeed = 0 end
+	healingSpeed=healingSpeed*60000
+	
+	-- Timeout before being healed
+	healingTimeout = GetInt("savegame.mod.healingTimeout")
+	if healingTimeout == nil or healingTimeout == 0 then healingTimeout = 0 end
+	if GetInt("savegame.mod.healingTimeout") == 1000 then healingTimeout = 0 end
+	healingTimeout=healingTimeout*2
+	
+	
+	
+	-- Update settings if incomplete
+	if updateSettingsFile == true then
+		saveSettings()
+	end
+	
+end
+
+function saveSettings()
+
+	SetString("savegame.mod.godmodeKey", godmodeKey)
+	SetInt("savegame.mod.alwaysShowHealthBar", alwaysShowHealthBar)
+	SetString("savegame.mod.screenEffectRed", screenEffectRed)
+	if healthMultiplierView == 0 then healthMultiplierView = 1 end
+	SetInt("savegame.mod.healthMultiplier", healthMultiplierView*100)
+	if healingSpeedView == 0 then healingSpeedView = 1 end
+	SetInt("savegame.mod.healingSpeed", healingSpeedView*10000)
+	if healingTimeoutView == 0 then healingTimeoutView = 1000 end
+	SetInt("savegame.mod.healingTimeout", healingTimeoutView)
+	
+	-- New features
+	SetString("savegame.mod.screenEffectBlur", screenEffectBlur)
+	SetString("savegame.mod.godmodeHideText", godmodeHideText)
+	SetString("savegame.mod.godmodeEnabledDefault", godmodeEnabledDefault)
+			
+end
+
+function drawUiStatus(status)
+	if status == true or status == "true" then
+		UiText("Enabled")
+		UiTranslate(-24, 0)
+		UiColor(0,0.7,0)
+		UiRect(22, 32)
+		UiColor(1,1,1)
+		UiTranslate(24, 0)
+	else
+		UiText("Disabled")
+		UiTranslate(-24, 0)
+		UiColor(0.7,0,0)
+		UiRect(22, 32)
+		UiColor(1,1,1)
+		UiTranslate(24, 0)
+	end
 end
 
 function update(dt)
@@ -303,10 +463,10 @@ function tick(dt)
 	
 	-- Change godmode
 	if InputReleased("interact") then
-		if godmode == true then
-			godmode = false
+		if godmode == "true" then
+			godmode = "false"
 		else
-			godmode = true
+			godmode = "true"
 		end
 	end
 end

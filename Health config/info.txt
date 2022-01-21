@@ -1,4 +1,4 @@
-name = Jos Badpak's Health config
+name = Health config
 author = Jos Badpak
 description = Gain more control on the health settings [noupload]
 tags=
