@@ -47,11 +47,21 @@ function init()
 	if screenEffectRed == nil then screenEffectRed = true end]]--
 	
 	changeHealthDrain = GetInt("savegame.mod.healthMultiplier")
+	-- Fixed bugged values
+	if changeHealthDrain == 6000 then
+		changeHealthDrain = 0
+		--updateSettingsFile = true
+	end
 	--DebugPrint(changeHealthDrain)
 	if changeHealthDrain == nil or changeHealthDrain == 0 then changeHealthDrain = 1.0 else changeHealthDrain = changeHealthDrain/100 end
 	--DebugPrint(GetInt("savegame.mod.healthMultiplier"))
 	
 	healthGain = GetInt("savegame.mod.healingSpeed")
+	-- Fixed bugged values
+	if healthGain == 600000 then
+		healthGain = 0
+		--updateSettingsFile = true
+	end
 	if healthGain == nil or healthGain == 0 then
 		healthGain = 0.0016 
 	else 
@@ -141,6 +151,8 @@ function loadSettings()
 		screenEffectBlur = "true"
 		updateSettingsFile = true
 	end
+	
+	
 	
 	
 	

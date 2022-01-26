@@ -352,6 +352,13 @@ function loadSettings()
 	
 	-- Health multiplier
 	healthMultiplier = GetInt("savegame.mod.healthMultiplier")
+	
+	-- Fixed bugged values
+	if healthMultiplier == 6000 then
+		healthMultiplier = 0
+		updateSettingsFile = true
+	end
+	
 	if healthMultiplier == nil or healthMultiplier == 0 then
 		healthMultiplier = 1.0
 	else 
@@ -362,9 +369,18 @@ function loadSettings()
 	
 	-- Healing speed
 	healingSpeed = GetInt("savegame.mod.healingSpeed")
+	-- Fixed bugged values
+	if healingspeed == 600000 then
+		healingspeed = 0
+		updateSettingsFile = true
+	end
 	if healingSpeed == nil or healingSpeed == 0 then healingSpeed = 0.0016 else healingSpeed = healingSpeed/10000 end
 	if GetInt("savegame.mod.healingSpeed") == 10000 then healingSpeed = 0 end
 	healingSpeed=healingSpeed*60000
+	--DebugPrint(0.0016*60000)
+	
+	
+	
 	
 	-- Timeout before being healed
 	healingTimeout = GetInt("savegame.mod.healingTimeout")
