@@ -8,11 +8,12 @@ local newHealth = 1
 local modHealth = 1
 local healthTimeout = 0
 local godmode = false
-local lastTimePlayedIsDamaged = 0
+local lastTimePlayedIsDamaged = 300
+local lastTimePlayedIsDamagedHealthLost = 0
+local lastTimePlayedIsDamagedHealingRedScreen = 120
 local damageTaken = 0
 local newLastHealth = 0
 local remainingDamage = 0
-
 
 local damagePrecision = 100000000
 
@@ -28,6 +29,7 @@ local alwaysShowHealthBar = 1 -- 1 is false 2 is true
 local godmodeKey = "G"
 local respawnInstantly = "false"
 local screenEffectRed = "true"
+local screenEffectDamage = "true"
 
 local screenEffectBlur = "true"
 local godmodeEnabledDefault = "false"
@@ -62,7 +64,7 @@ function init()
 		healthGain = 0
 		--updateSettingsFile = true
 	end
-	if healthGain == nil or healthGain == 0 then
+	if healthGain == nil or healthGain == 0 or healthGain > 0.01 then
 		healthGain = 0.0016 
 	else 
 		healthGain = healthGain/10000 
@@ -151,7 +153,13 @@ function loadSettings()
 		screenEffectBlur = "true"
 		updateSettingsFile = true
 	end
-	
+
+	-- Screen red on damage
+	screenEffectDamage = GetString("savegame.mod.screenEffectDamage")
+	if screenEffectDamage == "" then
+		screenEffectDamage = "true"
+		updateSettingsFile = true
+	end
 	
 	
 	
@@ -222,6 +230,8 @@ function tick(dt)
 			remainingDamage = 0
 			modHealth = 1
 			godmodeTextFadeFrame = 120 -- 2 sec
+			lastTimePlayedIsDamaged = 300
+			lastTimePlayedIsDamagedHealthLost = 0
 		end
 	end
 
@@ -280,9 +290,8 @@ end
 
 function draw(dt)
 
-	screenEffectRedFunction()
-	
-	if godmode == false then 
+	if godmode == false then
+		screenEffectRedFunction()
 
 		-- Setup safe drawing area
 		-- The drawing area is now 1920 by 1080 in the center of screen
@@ -317,12 +326,15 @@ function draw(dt)
 		
 		-- Calculate damage
 		if damageTaken > 0 then
+			if lastTimePlayedIsDamaged > lastTimePlayedIsDamagedHealingRedScreen or damageTaken > lastTimePlayedIsDamagedHealthLost then
+				lastTimePlayedIsDamagedHealthLost = damageTaken
+			end
 			lastTimePlayedIsDamaged = 0
 			--DebugPrint(changeHealthDrain)
 			modHealth = modHealth - (math.floor((damageTaken * (1/changeHealthDrain)) + math.floor(remainingDamage * (1/changeHealthDrain)))/damagePrecision)
 			--DebugPrint(currentHealth - lastHealth)
 		else
-			if lastTimePlayedIsDamaged < 100 then
+			if lastTimePlayedIsDamaged < 300 then
 				lastTimePlayedIsDamaged = lastTimePlayedIsDamaged + 1
 			end
 		end
@@ -455,7 +467,13 @@ function killPlayer()
 		-- Kill player
 		SetPlayerHealth(0)
 		modHealth = -1
-		
+
+
+		damageTaken = 0
+		remainingDamage = 0
+		lastTimePlayedIsDamaged = 300
+		lastTimePlayedIsDamagedHealthLost = 0
+
 		-- Prevent visual glitch
 		remainingDamage = 0
 		damageTaken = 0
@@ -474,20 +492,49 @@ end
 
 function screenEffectRedFunction()
 
+	local damageAlpha = 0
+
 	local realModHealth = modHealth * changeHealthDrain
 	if screenEffectRed == "true" and realModHealth < 0.4 then
-	
+
 		local alphaValue = 0.4-(realModHealth)
 		if alphaValue > 0.4 then
 			alphaValue = 0.4
 		end
-	
-		UiPush()
-			UiColor(1, 0, 0, alphaValue)
-			UiRect(1920, 1080)
-		UiPop()
-	
+
+		damageAlpha = damageAlpha + alphaValue
+		--UiPush()
+		--UiColor(1, 0, 0, alphaValue)
+		--UiRect(1920, 1080)
+		--UiPop()
+
+	-- Red screen effect on taking damage
+	elseif screenEffectDamage == "true" and lastTimePlayedIsDamaged < lastTimePlayedIsDamagedHealingRedScreen then -- 60 is 60 frames or 1 seconds
+
+		local initAlphaValue = lastTimePlayedIsDamagedHealthLost / damagePrecision
+		if initAlphaValue < 0.1 then initAlphaValue = 0.1 end
+
+		local alphaValue = (initAlphaValue*((lastTimePlayedIsDamagedHealthLost/damagePrecision)+0.5)) * (1-(lastTimePlayedIsDamaged/lastTimePlayedIsDamagedHealingRedScreen))
+
+		--alphaValue = 0.3*damagePrecision
+		--alphaValue = alphaValue * lastTimePlayedIsDamagedHealthLost+(0.5*damagePrecision)
+		--alphaValue = lastTimePlayedIsDamagedHealthLost / damagePrecision
+		--DebugPrint(initAlphaValue)
+		--DebugPrint(alphaValue)
+		--DebugPrint( ((0.3*damagePrecision) * ( (lastTimePlayedIsDamagedHealthLost)+(0.5*damagePrecision)) )/damagePrecision )
+		--DebugPrint( ((0.3*damagePrecision) * ( (lastTimePlayedIsDamagedHealthLost)+(0.5*damagePrecision)) )/damagePrecision )
+		damageAlpha = damageAlpha + alphaValue
+		--UiPush()
+		--UiColor(1, 0, 0, alphaValue)
+		--UiRect(1920, 1080)
+		--UiPop()
 	end
+
+	if damageAlpha > 0.5 then damageAlpha = 0.5 end
+	UiPush()
+	UiColor(1, 0, 0, damageAlpha)
+	UiRect(1920, 1080)
+	UiPop()
 
 	makescreenEffectBlurFunction()
 

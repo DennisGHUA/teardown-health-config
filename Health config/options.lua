@@ -24,6 +24,7 @@ local alwaysShowHealthBar = 1 -- 1 is false 2 is true
 local godmode = false -- not used here
 local screenEffectRed = "true"
 local screenEffectBlur = "true"
+local screenEffectDamage = "true"
 local godmodeEnabledDefault = "false"
 local godmodeHideText = "false"
 
@@ -37,6 +38,7 @@ end
 
 
 function draw()
+
 	-- Setup safe drawing area
 	-- The drawing area is now 1920 by 1080 in the center of screen
 	local x0, y0, x1, y1 = UiSafeMargins()
@@ -112,7 +114,7 @@ function draw()
 			UiText(godmodeKey)
 		end
 		
-		UiTranslate(0, 64)
+		UiTranslate(0, 32)
 		
 		-- Always show health bar
 		UiAlign("center middle")
@@ -131,21 +133,7 @@ function draw()
 		else
 			drawUiStatus(true)
 		end
-		
-		-- Red screen on low health
-		UiAlign("center middle")
-		UiTranslate(-180, 64)
-		if UiTextButton("Red screen on low health", 300, 40) then
-			if screenEffectRed == "true" then
-				screenEffectRed = "false"
-			else
-				screenEffectRed = "true"
-			end
-		end
-		UiTranslate(180, 0)
-		UiAlign("left middle")
-		drawUiStatus(screenEffectRed)
-		
+
 		-- Screen blur on low health
 		UiAlign("center middle")
 		UiTranslate(-180, 64)
@@ -159,6 +147,35 @@ function draw()
 		UiTranslate(180, 0)
 		UiAlign("left middle")
 		drawUiStatus(screenEffectBlur)
+
+		-- Red screen on low health
+		UiAlign("center middle")
+		UiTranslate(-180, 64)
+		if UiTextButton("Red screen on low health", 300, 40) then
+			if screenEffectRed == "true" then
+				screenEffectRed = "false"
+			else
+				screenEffectRed = "true"
+			end
+		end
+		UiTranslate(180, 0)
+		UiAlign("left middle")
+		drawUiStatus(screenEffectRed)
+
+
+		-- Screen damage effect
+		UiAlign("center middle")
+		UiTranslate(-180, 64)
+		if UiTextButton("Red screen on any damage", 300, 40) then
+			if screenEffectDamage == "true" then
+				screenEffectDamage = "false"
+			else
+				screenEffectDamage = "true"
+			end
+		end
+		UiTranslate(180, 0)
+		UiAlign("left middle")
+		drawUiStatus(screenEffectDamage)
 		
 		-- Mark default
 		--[[UiTranslate(-368, 128)
@@ -347,7 +364,15 @@ function loadSettings()
 		screenEffectBlur = "true"
 		updateSettingsFile = true
 	end
-	
+
+	-- Screen red on damage
+	screenEffectDamage = GetString("savegame.mod.screenEffectDamage")
+	if screenEffectDamage == "" then
+		screenEffectDamage = "true"
+		updateSettingsFile = true
+	end
+
+
 	
 	
 	-- Health multiplier
@@ -376,7 +401,10 @@ function loadSettings()
 	end
 	if healingSpeed == nil or healingSpeed == 0 then healingSpeed = 0.0016 else healingSpeed = healingSpeed/10000 end
 	if GetInt("savegame.mod.healingSpeed") == 10000 then healingSpeed = 0 end
+	--DebugPrint(healingSpeed)
+	if healingSpeed > 0.01 then healingSpeed = 0.0016 end -- 0.01
 	healingSpeed=healingSpeed*60000
+	--DebugPrint(healingSpeed)
 	--DebugPrint(0.0016*60000)
 	
 	
@@ -413,7 +441,9 @@ function saveSettings()
 	SetString("savegame.mod.screenEffectBlur", screenEffectBlur)
 	SetString("savegame.mod.godmodeHideText", godmodeHideText)
 	SetString("savegame.mod.godmodeEnabledDefault", godmodeEnabledDefault)
-			
+
+	SetString("savegame.mod.screenEffectDamage", screenEffectDamage)
+
 end
 
 function drawUiStatus(status)
