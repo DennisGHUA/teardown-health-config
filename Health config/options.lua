@@ -224,7 +224,7 @@ function draw()
 		UiTranslate(-300, 32)
 		UiAlign("center middle")
 		healingTimeout = UiSlider("ui/common/dot.png", "x", healingTimeout, 0, 600)
-		healingTimeoutView = healingTimeout/2
+		healingTimeoutView = healingTimeout--/1
 		healingTimeoutView = math.floor(healingTimeoutView+0.5)
 		UiTranslate(300, 0)
 		UiRect(600, 4)
@@ -386,7 +386,7 @@ function loadSettings()
 	healingTimeout = GetInt("savegame.mod.healingTimeout")
 	if healingTimeout == nil or healingTimeout == 0 then healingTimeout = 0 end
 	if GetInt("savegame.mod.healingTimeout") == 1000 then healingTimeout = 0 end
-	healingTimeout=healingTimeout*2
+	--healingTimeout=healingTimeout
 	
 	
 	
