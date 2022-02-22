@@ -300,7 +300,7 @@ function draw()
 	
 		-- Close
 		UiTranslate(-256, 0)
-		if UiTextButton("Close", 200, 40) then
+		if UiTextButton("Discard & close", 200, 40) then
 			Menu()
 		end
 	UiPop()
