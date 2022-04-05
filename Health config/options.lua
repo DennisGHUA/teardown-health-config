@@ -287,6 +287,7 @@ function draw()
 			screenEffectBlur = "true"
 			godmodeEnabledDefault = "false"
 			godmodeHideText = "false"
+			screenEffectDamage = "true"
 			
 		end
 		

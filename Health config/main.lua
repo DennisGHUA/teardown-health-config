@@ -2,6 +2,8 @@
 --Modding documentation: http://teardowngame.com/modding
 --API reference: http://teardowngame.com/modding/api.html
 
+--#include "settings.lua"
+
 -- Backend vars
 local lastHealth = 1
 local newHealth = 1
@@ -217,7 +219,6 @@ end]]--
 --local testlastHealth = 0
 -- Called exactly once per frame. The time step is variable but always between 0.0 and 0.0333333
 function tick(dt)
-
 	-- Change godmode
 	if InputReleased(godmodeKey) then
 		if godmode == true then
