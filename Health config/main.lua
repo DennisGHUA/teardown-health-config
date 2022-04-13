@@ -2,7 +2,9 @@
 --Modding documentation: http://teardowngame.com/modding
 --API reference: http://teardowngame.com/modding/api.html
 
---#include "settings.lua"
+#include "mod_settings.lua"
+#include "render_health.lua"
+#include "render_effects.lua"
 
 -- Backend vars
 local lastHealth = 1
@@ -17,7 +19,8 @@ local damageTaken = 0
 local newLastHealth = 0
 local remainingDamage = 0
 
-local damagePrecision = 100000000
+-- Multiplay and substract damage value by this to avoid float calculation errors
+local damagePrecision = 100000000 --100.000.000
 
 local currentHealth = 1*damagePrecision
 local lastHealth = 1*damagePrecision
@@ -25,7 +28,7 @@ local lastHealth = 1*damagePrecision
 
 -- Settings
 local changeHealthDrain = 1.0
-local healthGain = 0.0016
+local healingSpeed = 0.0016 -- healthGain
 local healthGainTimeout = 0
 local alwaysShowHealthBar = 1 -- 1 is false 2 is true
 local godmodeKey = "G"
@@ -38,17 +41,8 @@ local godmodeEnabledDefault = "false"
 local godmodeHideText = "false"
 local godmodeTextFadeFrame = 120
 
-
 function init()
-	-- Load config
-	--[[godmodeKey = GetString("savegame.mod.godmodeKey")
-	if godmodeKey == "" or godmodeKey == nil then godmodeKey = "G" end]]--
-	
-	--[[alwaysShowHealthBar = GetInt("savegame.mod.alwaysShowHealthBar")
-	if alwaysShowHealthBar < 1 then alwaysShowHealthBar = 1 end]]--
-	
-	--[[screenEffectRed = GetBool("savegame.mod.screenEffectRed")
-	if screenEffectRed == nil then screenEffectRed = true end]]--
+
 	
 	changeHealthDrain = GetInt("savegame.mod.healthMultiplier")
 	-- Fixed bugged values
@@ -59,21 +53,20 @@ function init()
 	--DebugPrint(changeHealthDrain)
 	if changeHealthDrain == nil or changeHealthDrain == 0 then changeHealthDrain = 1.0 else changeHealthDrain = changeHealthDrain/100 end
 	--DebugPrint(GetInt("savegame.mod.healthMultiplier"))
-	
-	healthGain = GetInt("savegame.mod.healingSpeed")
+
+	healingSpeed = GetInt("savegame.mod.healingSpeed")
 	-- Fixed bugged values
-	if healthGain == 600000 then
-		healthGain = 0
+	if healingSpeed == 600000 then
+		healingSpeed = 0
 		--updateSettingsFile = true
 	end
-	if healthGain == nil or healthGain == 0 or healthGain > 0.01 then
-		healthGain = 0.0016 
-	else 
-		healthGain = healthGain/10000 
+	if healingSpeed == nil or healingSpeed == 0 or healingSpeed > 0.01 then
+		healingSpeed = 0.0016
+	else
+		healingSpeed = healingSpeed/10000
 	end
-	if GetInt("savegame.mod.healingSpeed") == 10000 then healthGain = 0 end
-	--DebugPrint(GetInt("savegame.mod.healingSpeed"))
-	--DebugPrint(healthGain)
+	if GetInt("savegame.mod.healingSpeed") == 10000 then healingSpeed = 0 end
+
 	
 	healthGainTimeout = GetInt("savegame.mod.healingTimeout")
 	if healthGainTimeout == nil or healthGainTimeout == 0 then healthGainTimeout = 0 end
@@ -88,18 +81,7 @@ function init()
 		lastHealth = 1*damagePrecision
 		healthTimeout = healthGainTimeout
 	end
-	
-	-- Load new features
-	--screenEffectBlur = GetBool("savegame.mod.screenEffectBlur")
-	--godmodeEnabledDefault = GetBool("savegame.mod.godmodeEnabledDefault")
-	--godmodeHideText = GetBool("savegame.mod.godmodeHideText")
-	--godmodeHideText = true
-	
-	-- Code
-	--[[if godmodeEnabledDefault == true then
-		godmode = true
-	end]]--
-	
+
 	loadSettings()
 	
 end
@@ -163,58 +145,7 @@ function loadSettings()
 		updateSettingsFile = true
 	end
 	
-	
-	
-	
-	-- Health multiplier
-	--[[healthMultiplier = GetInt("savegame.mod.healthMultiplier")
-	if healthMultiplier == nil or healthMultiplier == 0 then
-		healthMultiplier = 1.0
-	else 
-		healthMultiplier = healthMultiplier/100 
-	end
-	healthMultiplier = healthMultiplier*60]]--
-	
-	
-	-- Healing speed
-	--[[healingSpeed = GetInt("savegame.mod.healingSpeed")
-	if healingSpeed == nil or healingSpeed == 0 then healingSpeed = 0.0016 else healingSpeed = healingSpeed/10000 end
-	if GetInt("savegame.mod.healingSpeed") == 10000 then healingSpeed = 0 end
-	healingSpeed=healingSpeed*60000]]--
-	
-	-- Timeout before being healed
-	--[[healingTimeout = GetInt("savegame.mod.healingTimeout")
-	if healingTimeout == nil or healingTimeout == 0 then healingTimeout = 0 end
-	if GetInt("savegame.mod.healingTimeout") == 1000 then healingTimeout = 0 end
-	healingTimeout=healingTimeout*2]]--
-	
-	
-	
-	-- Update settings if incomplete
-	--[[if updateSettingsFile == true then
-		--saveSettings()
-	end]]--
-	
 end
-
---[[function saveSettings()
-
-	SetString("savegame.mod.godmodeKey", godmodeKey)
-	SetInt("savegame.mod.alwaysShowHealthBar", alwaysShowHealthBar)
-	SetString("savegame.mod.screenEffectRed", screenEffectRed)
-	if healthMultiplierView == 0 then healthMultiplierView = 1 end
-	SetInt("savegame.mod.healthMultiplier", healthMultiplierView*100)
-	if healingSpeedView == 0 then healingSpeedView = 1 end
-	SetInt("savegame.mod.healingSpeed", healingSpeedView*10000)
-	if healingTimeoutView == 0 then healingTimeoutView = 1000 end
-	SetInt("savegame.mod.healingTimeout", healingTimeoutView)
-	
-	-- New features
-	SetString("savegame.mod.screenEffectBlur", screenEffectBlur)
-	SetString("savegame.mod.godmodeHideText", godmodeHideText)
-	SetString("savegame.mod.godmodeEnabledDefault", godmodeEnabledDefault)
-			
-end]]--
 
 --local testlastHealth = 0
 -- Called exactly once per frame. The time step is variable but always between 0.0 and 0.0333333
@@ -271,9 +202,7 @@ function update(dt)
 		elseif lastTimePlayedIsDamaged > 10 and remainingDamage <= 0 and damageTaken <= 0 then
 			-- Heal player
 			if modHealth > 0 and modHealth < 1 then
-				--DebugPrint("Healing")
-				modHealth = modHealth + (healthGain *(1.0/changeHealthDrain))
-				--DebugPrint((healthGain *(1.0/changeHealthDrain)))
+				modHealth = modHealth + (healingSpeed *(1.0/changeHealthDrain))
 				if modHealth >= 1 then
 					healthTimeout = healthGainTimeout
 					modHealth = 1
@@ -291,34 +220,37 @@ end
 
 function draw(dt)
 
-	if godmode == false then
-		screenEffectRedFunction()
+	-- Setup safe drawing area
+	-- The drawing area is now 1920 by 1080 in the center of screen
+	local x0, y0, x1, y1 = UiSafeMargins()
+	UiTranslate(x0, y0)
+	UiWindow(x1-x0, y1-y0, true)
 
-		-- Setup safe drawing area
-		-- The drawing area is now 1920 by 1080 in the center of screen
-		local x0, y0, x1, y1 = UiSafeMargins()
-		UiTranslate(x0, y0)
-		UiWindow(x1-x0, y1-y0, true)
+	-- Render effects if godmode is disabled
+	if godmode == false then
+
+
+		-- Render red screen effect if enabled
+		if screenEffectRed == "true" then
+			renderEffectRed(modHealth, changeHealthDrain, lastTimePlayedIsDamaged, lastTimePlayedIsDamagedHealingRedScreen, lastTimePlayedIsDamagedHealthLost, damagePrecision)
+		end
+
+		-- Render blur screen effect if enabled
+		if screenEffectRed == "true" then
+			renderEffectBlur(modHealth, changeHealthDrain)
+		end
+
 
 
 		-- Get current health
 		currentHealth = math.floor(GetPlayerHealth()*damagePrecision)
 		
 		-- Calculate damage
-		--[[if currentHealth - lastHealth > 0 then
-			DebugPrint(currentHealth - lastHealth)
-		end]]--
 		damageTaken = math.floor(math.floor(math.floor(currentHealth) - math.floor(lastHealth))) * - 1
-		--DebugPrint(math.floor(currentHealth*100000))
-		--DebugPrint(math.floor(lastHealth*100000))
+
 		if damageTaken < 0 then -- Healing instead of taking damage
 			damageTaken = 0
 		end
-		--[[if damageTaken > 0 then
-			DebugPrint(damageTaken)
-			DebugPrint(remainingDamage)
-		end]]--
-		--damageTaken = 0
 		
 		-- Update lastHealth
 		if GetPlayerHealth() > 0 then -- This line prevents low health after dieing
@@ -368,54 +300,10 @@ function draw(dt)
 			damageTaken = 0
 		end
 		
-		local realModHealth = modHealth * changeHealthDrain
+		local modHealthAdjusted = modHealth * changeHealthDrain
 		
-		-- Draw HEALTH text
-		if modHealth > 0 and modHealth < alwaysShowHealthBar then 
-			UiPush()
-				-- Set correct color
-				if realModHealth < 0.3 then
-					-- Red
-					UiColor(1, 0, 0)
-				--[[elseif modHealth < 0.8 then
-					-- Yellow
-					UiColor(1, 1, 1*modHealth)]]--
-				end
-				UiFont("bold.ttf", 24)
-				UiTranslate(UiWidth()-144, UiHeight()-22)
-				UiAlign("right")
-				UiText("HEALTH")
-			UiPop()
-			
-			-- Draw Health background
-			UiPush()
-				UiTranslate(UiWidth()-134, UiHeight()-40)
-				UiColor(0, 0, 0, 0.6)
-				if modHealth < 0 then 
-					modHealth = -1
-				end
-				UiRect(108, 20)
-			UiPop()
-			
-
-			-- Draw Health bar
-			UiPush()
-				UiTranslate(UiWidth()-132, UiHeight()-38)
-				
-				-- Set correct color
-				if realModHealth < 0.3 then
-					-- Red
-					UiColor(1, 0, 0)
-				elseif realModHealth < 0.8 then
-					-- Yellow
-					UiColor(1, 1, 1*realModHealth)
-				end
-				
-				-- Die when out of health
-				--killPlayer()
-				UiRect(104*modHealth, 16)
-			UiPop()
-		end
+		-- Draw Health bar
+		drawHealthBar(modHealth, alwaysShowHealthBar, modHealthAdjusted)
 		
 		-- Draw godmode fade away
 		if godmodeTextFadeFrame > 0 and godmodeHideText == "true" then
@@ -489,79 +377,4 @@ function killPlayer()
 		end
 		
 	end
-end
-
-function screenEffectRedFunction()
-
-	local damageAlpha = 0
-
-	local realModHealth = modHealth * changeHealthDrain
-	if screenEffectRed == "true" and realModHealth < 0.4 then
-
-		local alphaValue = 0.4-(realModHealth)
-		if alphaValue > 0.4 then
-			alphaValue = 0.4
-		end
-
-		damageAlpha = damageAlpha + alphaValue
-		--UiPush()
-		--UiColor(1, 0, 0, alphaValue)
-		--UiRect(1920, 1080)
-		--UiPop()
-
-	-- Red screen effect on taking damage
-	elseif screenEffectDamage == "true" and lastTimePlayedIsDamaged < lastTimePlayedIsDamagedHealingRedScreen then -- 60 is 60 frames or 1 seconds
-
-		local initAlphaValue = lastTimePlayedIsDamagedHealthLost / damagePrecision
-		if initAlphaValue < 0.1 then initAlphaValue = 0.1 end
-
-		local alphaValue = (initAlphaValue*((lastTimePlayedIsDamagedHealthLost/damagePrecision)+0.5)) * (1-(lastTimePlayedIsDamaged/lastTimePlayedIsDamagedHealingRedScreen))
-
-		--alphaValue = 0.3*damagePrecision
-		--alphaValue = alphaValue * lastTimePlayedIsDamagedHealthLost+(0.5*damagePrecision)
-		--alphaValue = lastTimePlayedIsDamagedHealthLost / damagePrecision
-		--DebugPrint(initAlphaValue)
-		--DebugPrint(alphaValue)
-		--DebugPrint( ((0.3*damagePrecision) * ( (lastTimePlayedIsDamagedHealthLost)+(0.5*damagePrecision)) )/damagePrecision )
-		--DebugPrint( ((0.3*damagePrecision) * ( (lastTimePlayedIsDamagedHealthLost)+(0.5*damagePrecision)) )/damagePrecision )
-		damageAlpha = damageAlpha + alphaValue
-		--UiPush()
-		--UiColor(1, 0, 0, alphaValue)
-		--UiRect(1920, 1080)
-		--UiPop()
-	end
-
-	if damageAlpha > 0.5 then damageAlpha = 0.5 end
-	UiPush()
-	UiColor(1, 0, 0, damageAlpha)
-	UiRect(1920, 1080)
-	UiPop()
-
-	makescreenEffectBlurFunction()
-
-end
-
-function makescreenEffectBlurFunction()
-	--screenEffectBlur = true -- debug
-
-	local realModHealth = modHealth * changeHealthDrain
-
-	if screenEffectBlur == "true" and realModHealth < 0.3 then
-	
-		local alphaValue = 1.0-(realModHealth)
-	
-		UiPush()
-			UiBlur(alphaValue)
-		UiPop()
-	
-	elseif screenEffectBlur == "true" and realModHealth < 0.4 then
-	
-		local alphaValue = 0.7*(1-((realModHealth-0.3)*10))
-	
-		UiPush()
-			UiBlur(alphaValue)
-		UiPop()
-	
-	end
-
 end
