@@ -182,7 +182,7 @@ end
 -- Called at a fixed update rate, but at the most two times per frame. Time step is always 0.0166667 (60 updates per second). Depending on frame rate it might not be called at all for a particular frame.
 function update(dt)
 	--DebugPrint(modHealth)
-	DebugPrint(healthTimeout)
+	--DebugPrint(healthTimeout)
 	
 	
 	-- Fade godmode text
