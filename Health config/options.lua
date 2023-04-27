@@ -442,7 +442,7 @@ function saveSettings()
 	SetInt("savegame.mod.healingSpeed", healingSpeedView*10000)
 	--if healingTimeoutView == 0 then healingTimeoutView = 1000 end
 	SetInt("savegame.mod.healingTimeout", healingTimeout)
-	DebugPrint(healingTimeout)
+	--DebugPrint(healingTimeout)
 	
 	-- New features
 	SetString("savegame.mod.screenEffectBlur", screenEffectBlur)
