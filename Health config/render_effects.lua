@@ -1,11 +1,14 @@
 -- This adds the red screen effect
 function renderEffectRed(modHealth, changeHealthDrain, lastTimePlayedIsDamaged, lastTimePlayedIsDamagedHealingRedScreen, lastTimePlayedIsDamagedHealthLost, damagePrecision)
 
+
+
     -- Init red color alpha value
     local damageAlpha = 0
 
     local realModHealth = modHealth * changeHealthDrain
-    if realModHealth < 0.4 then
+
+    if realModHealth < 0.4 and modHealth < 0.8 then
 
         local alphaValue = 0.4-(realModHealth)
         if alphaValue > 0.4 then
@@ -42,7 +45,7 @@ function renderEffectBlur(modHealth, changeHealthDrain)
 
     local realModHealth = modHealth * changeHealthDrain
 
-    if realModHealth < 0.3 then
+    if realModHealth < 0.3 and modHealth < 0.6 then
 
         local alphaValue = 1.0-(realModHealth)
 
@@ -50,7 +53,7 @@ function renderEffectBlur(modHealth, changeHealthDrain)
         UiBlur(alphaValue)
         UiPop()
 
-    elseif realModHealth < 0.4 then
+    elseif realModHealth < 0.4 and modHealth < 0.7 then
 
         local alphaValue = 0.7*(1-((realModHealth-0.3)*10))
 
