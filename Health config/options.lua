@@ -241,7 +241,8 @@ function draw()
 		UiTranslate(-300, 32)
 		UiAlign("center middle")
 		healingTimeout = UiSlider("ui/common/dot.png", "x", healingTimeout, 0, 600)
-		healingTimeoutView = healingTimeout--/1
+		--healingTimeoutRaw = healingTimeout
+		healingTimeoutView = healingTimeout/0.16666
 		healingTimeoutView = math.floor(healingTimeoutView+0.5)
 		UiTranslate(300, 0)
 		UiRect(600, 4)
@@ -413,17 +414,21 @@ function loadSettings()
 	
 	-- Timeout before being healed
 	healingTimeout = GetInt("savegame.mod.healingTimeout")
-	if healingTimeout == nil or healingTimeout == 0 then healingTimeout = 0 end
-	if GetInt("savegame.mod.healingTimeout") == 1000 then healingTimeout = 0 end
+	if healingTimeout == nil or healingTimeout == 0 then
+		healingTimeout = 0
+	else
+		healingTimeout = healingTimeout
+	end
+	--if GetInt("savegame.mod.healingTimeout") == 1000 then healingTimeout = 0 end
 	--healingTimeout=healingTimeout
-	
-	
-	
+
+
+
 	-- Update settings if incomplete
 	if updateSettingsFile == true then
 		saveSettings()
 	end
-	
+
 end
 
 function saveSettings()
@@ -435,8 +440,9 @@ function saveSettings()
 	SetInt("savegame.mod.healthMultiplier", healthMultiplierView*100)
 	if healingSpeedView == 0 then healingSpeedView = 1 end
 	SetInt("savegame.mod.healingSpeed", healingSpeedView*10000)
-	if healingTimeoutView == 0 then healingTimeoutView = 1000 end
-	SetInt("savegame.mod.healingTimeout", healingTimeoutView)
+	--if healingTimeoutView == 0 then healingTimeoutView = 1000 end
+	SetInt("savegame.mod.healingTimeout", healingTimeout)
+	DebugPrint(healingTimeout)
 	
 	-- New features
 	SetString("savegame.mod.screenEffectBlur", screenEffectBlur)

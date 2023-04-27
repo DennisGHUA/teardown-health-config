@@ -3,7 +3,7 @@ function drawHealthBar(modHealth, alwaysShowHealthBar, modHealthAdjusted)
     if modHealth > 0 and modHealth < alwaysShowHealthBar then
         UiPush()
         -- Set correct color
-        if modHealthAdjusted < 0.3 then
+        if modHealthAdjusted < 0.3 and modHealth < 0.5 then
             -- Red
             UiColor(1, 0, 0)
             --[[elseif modHealth < 0.8 then
@@ -38,10 +38,10 @@ function drawHealthBar(modHealth, alwaysShowHealthBar, modHealthAdjusted)
         UiTranslate(UiWidth()-132, UiHeight()-38)
 
         -- Set correct color
-        if modHealthAdjusted < 0.3 then
+        if modHealthAdjusted < 0.3 and modHealth < 0.5 then
             -- Red
             UiColor(1, 0, 0)
-        elseif modHealthAdjusted < 0.8 then
+        elseif modHealthAdjusted < 0.8 and modHealth < 0.9 then
             -- Yellow
             UiColor(1, 1, 1*modHealthAdjusted)
         end

@@ -69,8 +69,13 @@ function init()
 
 	
 	healthGainTimeout = GetInt("savegame.mod.healingTimeout")
-	if healthGainTimeout == nil or healthGainTimeout == 0 then healthGainTimeout = 0 end
-	if GetInt("savegame.mod.healingTimeout") == 1000 then healthGainTimeout = 0 end
+	if healthGainTimeout == nil or healthGainTimeout <= 0 then
+		healthGainTimeout = 0
+	else
+		healthGainTimeout = healthGainTimeout/0.16666
+		healthGainTimeout = math.floor(healthGainTimeout+0.5)
+	end
+	--if GetInt("savegame.mod.healingTimeout") == 1000 then healthGainTimeout = 0 end
 	
 	if godmode == false then 
 		-- Set health to 100%
@@ -177,6 +182,7 @@ end
 -- Called at a fixed update rate, but at the most two times per frame. Time step is always 0.0166667 (60 updates per second). Depending on frame rate it might not be called at all for a particular frame.
 function update(dt)
 	--DebugPrint(modHealth)
+	DebugPrint(healthTimeout)
 	
 	
 	-- Fade godmode text
@@ -266,6 +272,7 @@ function draw(dt)
 			--DebugPrint(changeHealthDrain)
 			modHealth = modHealth - (math.floor((damageTaken * (1/changeHealthDrain)) + math.floor(remainingDamage * (1/changeHealthDrain)))/damagePrecision)
 			--DebugPrint(currentHealth - lastHealth)
+			healthTimeout = healthGainTimeout
 		else
 			if lastTimePlayedIsDamaged < 300 then
 				lastTimePlayedIsDamaged = lastTimePlayedIsDamaged + 1
