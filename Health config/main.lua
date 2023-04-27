@@ -69,7 +69,7 @@ function init()
 
 	
 	healthGainTimeout = GetInt("savegame.mod.healingTimeout")
-	if healthGainTimeout == nil or healthGainTimeout <= 0 then
+	if healthGainTimeout == nil or healthGainTimeout <= 0 or healthGainTimeout > 601 then
 		healthGainTimeout = 0
 	else
 		healthGainTimeout = healthGainTimeout/0.16666

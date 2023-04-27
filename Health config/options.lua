@@ -414,7 +414,8 @@ function loadSettings()
 	
 	-- Timeout before being healed
 	healingTimeout = GetInt("savegame.mod.healingTimeout")
-	if healingTimeout == nil or healingTimeout == 0 then
+	--DebugPrint(healingTimeout)
+	if healingTimeout == nil or healingTimeout == 0 or healingTimeout > 601 then
 		healingTimeout = 0
 	else
 		healingTimeout = healingTimeout
