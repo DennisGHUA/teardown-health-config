@@ -294,7 +294,7 @@ function draw()
 		
 		-- Save
 		UiTranslate(-256, 0)
-		if UiTextButton("Save & close", 200, 40) then
+		if UiTextButton("Apply changes", 200, 40) then
 			saveSettings()
 			
 			Menu()
@@ -302,9 +302,11 @@ function draw()
 	
 		-- Close
 		UiTranslate(-256, 0)
-		if UiTextButton("Discard & close", 200, 40) then
+		UiColor(0.8,0.2,0.5)
+		if UiTextButton("Cancel", 200, 40) then
 			Menu()
 		end
+		UiColor(1,1,1)
 	UiPop()
 	
 	
