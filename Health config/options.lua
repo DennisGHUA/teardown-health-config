@@ -302,7 +302,7 @@ function draw()
 	
 		-- Close
 		UiTranslate(-256, 0)
-		UiColor(0.8,0.2,0.5)
+		UiColor(0.8,0,0)
 		if UiTextButton("Cancel", 200, 40) then
 			Menu()
 		end
