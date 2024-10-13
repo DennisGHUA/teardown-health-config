@@ -57,11 +57,11 @@ function renderEffectRed(modHealth, changeHealthDrain, lastTimePlayedIsDamaged, 
     UiRect(1920, 1080)
     UiPop()
     else
-    damageAlpha = damageAlpha*2
-    DrawDirectionalGradient(DamageColorRed, 1080/3, 1920, "down", damageAlpha, 0, 0)
-    DrawDirectionalGradient(DamageColorRed, 1080/3, 1920, "up", damageAlpha, 0, 1080)
-    DrawDirectionalGradient(DamageColorRed, 1080, 1920/3, "right", damageAlpha, 0, 0)
-    DrawDirectionalGradient(DamageColorRed, 1080, 1920/3, "left", damageAlpha, 1920, 0)
+    damageAlpha = damageAlpha*1.5
+    DrawDirectionalGradient(DamageColorRed, 1080/4, 1920, "down", damageAlpha, 0, 0)
+    DrawDirectionalGradient(DamageColorRed, 1080/4, 1920, "up", damageAlpha, 0, 1080)
+    DrawDirectionalGradient(DamageColorRed, 1080, 1920/4, "right", damageAlpha, 0, 0)
+    DrawDirectionalGradient(DamageColorRed, 1080, 1920/4, "left", damageAlpha, 1920, 0)
     end
 
 end

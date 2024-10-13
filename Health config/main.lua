@@ -37,7 +37,7 @@ local screenEffectRed = "true"
 local screenEffectDamage = "true"
 local screenEffectDamageVignette = "true"
 
-local screenEffectBlur = "true"
+local screenEffectBlur = "false"
 local godmodeEnabledDefault = "false"
 local godmodeHideText = "false"
 local godmodeTextFadeFrame = 120
@@ -146,7 +146,7 @@ function loadSettings()
 	-- Screen blur on low health
 	screenEffectBlur = GetString("savegame.mod.screenEffectBlur")
 	if screenEffectBlur == "" then
-		screenEffectBlur = "true"
+		screenEffectBlur = "false"
 		updateSettingsFile = true
 	end
 

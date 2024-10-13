@@ -23,7 +23,7 @@ local healthGainTimeout = 120
 local alwaysShowHealthBar = 1 -- 1 is false 2 is true
 local godmode = false -- not used here
 local screenEffectRed = "true"
-local screenEffectBlur = "true"
+local screenEffectBlur = "false"
 local screenEffectDamage = "true"
 local screenEffectDamageVignette = "true"
 local godmodeEnabledDefault = "false"
@@ -300,7 +300,7 @@ function draw()
 			godmodeKey = "G"
 			
 			-- New features
-			screenEffectBlur = "true"
+			screenEffectBlur = "false"
 			godmodeEnabledDefault = "false"
 			godmodeHideText = "false"
 			screenEffectDamage = "true"
@@ -381,7 +381,7 @@ function loadSettings()
 	-- Screen blur on low health
 	screenEffectBlur = GetString("savegame.mod.screenEffectBlur")
 	if screenEffectBlur == "" then
-		screenEffectBlur = "true"
+		screenEffectBlur = "false"
 		updateSettingsFile = true
 	end
 
