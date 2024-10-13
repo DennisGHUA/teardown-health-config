@@ -35,6 +35,7 @@ local godmodeKey = "G"
 local respawnInstantly = "false"
 local screenEffectRed = "true"
 local screenEffectDamage = "true"
+local screenEffectDamageVignette = "true"
 
 local screenEffectBlur = "true"
 local godmodeEnabledDefault = "false"
@@ -155,6 +156,15 @@ function loadSettings()
 		screenEffectDamage = "true"
 		updateSettingsFile = true
 	end
+
+	-- screenEffectDamageVignette
+	screenEffectDamageVignette = GetString("savegame.mod.screenEffectDamageVignette")
+	if screenEffectDamageVignette == "" then
+		screenEffectDamageVignette = "true"
+		updateSettingsFile = true
+	end
+
+
 	
 end
 

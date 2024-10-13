@@ -25,6 +25,7 @@ local godmode = false -- not used here
 local screenEffectRed = "true"
 local screenEffectBlur = "true"
 local screenEffectDamage = "true"
+local screenEffectDamageVignette = "true"
 local godmodeEnabledDefault = "false"
 local godmodeHideText = "false"
 
@@ -74,7 +75,7 @@ function draw()
 	
 		-- Enable godmode by default
 		UiAlign("center middle")
-		UiTranslate(0, -800)
+		UiTranslate(0, -880)
 		if UiTextButton("Enable godmode by default", 300, 40) then
 			if godmodeEnabledDefault == "true" then
 				godmodeEnabledDefault = "false"
@@ -85,7 +86,7 @@ function draw()
 		UiTranslate(180, 0)
 		UiAlign("left middle")
 		drawUiStatus(godmodeEnabledDefault)
-		
+
 		-- Hide godmode text
 		UiAlign("center middle")
 		UiTranslate(-180, 64)
@@ -99,7 +100,7 @@ function draw()
 		UiTranslate(180, 0)
 		UiAlign("left middle")
 		drawUiStatus(godmodeHideText)
-	
+
 		-- Toggle godmode key
 		UiTranslate(-330, 64)
 		UiAlign("left middle")
@@ -113,9 +114,9 @@ function draw()
 		else
 			UiText(godmodeKey)
 		end
-		
+
 		UiTranslate(0, 32)
-		
+
 		-- Always show health bar
 		UiAlign("center middle")
 		UiTranslate(-180, 64)
@@ -176,7 +177,21 @@ function draw()
 		UiTranslate(180, 0)
 		UiAlign("left middle")
 		drawUiStatus(screenEffectDamage)
-		
+
+
+		-- Screen damage effect
+		UiAlign("center middle")
+		UiTranslate(-180, 64)
+		if UiTextButton("Enhanced damage vignette", 300, 40) then
+			if screenEffectDamageVignette == "true" then
+				screenEffectDamageVignette = "false"
+			else
+				screenEffectDamageVignette = "true"
+			end
+		end
+		UiTranslate(180, 0)
+		UiAlign("left middle")
+		drawUiStatus(screenEffectDamageVignette)
 		-- Mark default
 		--[[UiTranslate(-368, 128)
 		UiColor(0,1,0)
@@ -289,7 +304,8 @@ function draw()
 			godmodeEnabledDefault = "false"
 			godmodeHideText = "false"
 			screenEffectDamage = "true"
-			
+			screenEffectDamageVignette = "true"
+
 		end
 		
 		-- Save
@@ -377,6 +393,14 @@ function loadSettings()
 	end
 
 
+	-- Screen screenEffectDamageVignette
+	screenEffectDamageVignette = GetString("savegame.mod.screenEffectDamageVignette")
+	if screenEffectDamageVignette == "" then
+		screenEffectDamageVignette = "true"
+		updateSettingsFile = true
+	end
+
+
 	
 	
 	-- Health multiplier
@@ -453,6 +477,7 @@ function saveSettings()
 	SetString("savegame.mod.godmodeEnabledDefault", godmodeEnabledDefault)
 
 	SetString("savegame.mod.screenEffectDamage", screenEffectDamage)
+	SetString("savegame.mod.screenEffectDamageVignette", screenEffectDamageVignette)
 
 end
 
