@@ -43,10 +43,13 @@ local godmodeTextFadeFrame = 120
 
 
 local killPlayerRunning = false
+local ThreadHaltToKillPlayer = false
 
 function init()
 
-	
+	-- disable regeneration for player
+	SetPlayerRegenerationState(false)
+
 	changeHealthDrain = GetInt("savegame.mod.healthMultiplier")
 	-- Fixed bugged values
 	if changeHealthDrain == 6000 then
@@ -158,6 +161,7 @@ end
 --local testlastHealth = 0
 -- Called exactly once per frame. The time step is variable but always between 0.0 and 0.0333333
 function tick(dt)
+
 	-- Change godmode
 	if InputReleased(godmodeKey) then
 		if godmode == true then
@@ -184,6 +188,7 @@ end
 
 -- Called at a fixed update rate, but at the most two times per frame. Time step is always 0.0166667 (60 updates per second). Depending on frame rate it might not be called at all for a particular frame.
 function update(dt)
+	--DebugPrint(GetPlayerHealth())
 	--DebugPrint(modHealth)
 	--if killPlayerRunning then
 	--	DebugPrint("T")
@@ -204,6 +209,7 @@ function update(dt)
 			modHealth = 1
 			lastHealth = 1
 			killPlayerRunning = false
+			ThreadHaltToKillPlayer = false
 		end
 	end
 	
@@ -293,6 +299,9 @@ function draw(dt)
 			lastTimePlayedIsDamaged = 0
 			--DebugPrint(changeHealthDrain)
 			modHealth = modHealth - (math.floor((damageTaken * (1/changeHealthDrain)) + math.floor(remainingDamage * (1/changeHealthDrain)))/damagePrecision)
+			if modHealth <= 0 then
+				ThreadHaltToKillPlayer = true
+			end
 			--DebugPrint(currentHealth - lastHealth)
 			healthTimeout = healthGainTimeout
 		else
@@ -305,7 +314,7 @@ function draw(dt)
 		end]]--
 		
 		
-		if GetPlayerHealth() > 0 then -- This line prevents low health after dieing
+		if GetPlayerHealth() > 0 then -- This line prevents low health after dying
 			lastHealth = newLastHealth
 		end
 		
@@ -313,21 +322,26 @@ function draw(dt)
 		-- Never show real health bar
 		if modHealth > 0 and GetPlayerHealth() > 0 then
 			remainingDamage=math.floor(damagePrecision-(math.floor(GetPlayerHealth()*damagePrecision)+math.floor(damageTaken))) -- positive value
-			SetPlayerHealth(1)
-			--remainingDamage = math.abs(remainingDamage)
-			if remainingDamage < 0 then -- Healing instead of taking damage
-				remainingDamage = 0
+			if ThreadHaltToKillPlayer == false then
+				if GetPlayerHealth() < 1 then
+					--DebugPrint("Set health 1")
+					SetPlayerHealth(1.0)
+				end
 			end
-			
+		--remainingDamage = math.abs(remainingDamage)
+		if remainingDamage < 0 then -- Healing instead of taking damage
+			remainingDamage = 0
+			end
+
 			--[[if damageTaken < 0 or damageTaken > 0 or remainingDamage < 0 or remainingDamage > 0 then
 				DebugPrint("damageTaken")
 				DebugPrint(damageTaken/damagePrecision)
 				DebugPrint("remainingDamage")
 				DebugPrint(remainingDamage/damagePrecision)
 			end]]--
-			
+
 			damageTaken = 0
-		end
+			end
 		
 		local modHealthAdjusted = modHealth * changeHealthDrain
 		
@@ -377,19 +391,17 @@ function draw(dt)
 end
 
 
-local revivePlayer = 10 -- frames
-
 function killPlayer()
-	if killPlayerRunning == true then
+	if ThreadHaltToKillPlayer == false or killPlayerRunning == true then
 		return
 	end
 	-- Make sure the player dies
-	if modHealth < 0 then
+	if modHealth <= 0 then
+		killPlayerRunning = true
 
 		-- Kill player
-		SetPlayerHealth(0)
 		modHealth = -1
-		killPlayerRunning = true
+		SetPlayerHealth(0)
 
 
 		damageTaken = 0
@@ -400,16 +412,6 @@ function killPlayer()
 		-- Prevent visual glitch
 		remainingDamage = 0
 		damageTaken = 0
-
-		if killPlayerRunning == true then
-			-- Heal it when dead
-			if GetPlayerHealth() > 0 then
-				revivePlayer = 60
-				modHealth = 1
-				lastHealth = 1
-				killPlayerRunning = false
-			end
-		end
 		
 	end
 end

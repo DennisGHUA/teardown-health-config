@@ -1,3 +1,3 @@
 function test()
-    DebugPrint("test")
+    --DebugPrint("test")
 end
