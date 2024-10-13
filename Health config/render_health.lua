@@ -48,7 +48,14 @@ function drawHealthBar(modHealth, alwaysShowHealthBar, modHealthAdjusted)
 
         -- Die when out of health
         --killPlayer()
-        UiRect(104*modHealth, 16)
+        UiRect(clamp(104*modHealth, 1, 104), 16)
         UiPop()
     end
+end
+
+function clamp(val, lower, upper)
+    if lower > upper then
+        lower, upper = upper, lower
+    end
+    return math.max(lower, math.min(upper, val))
 end
