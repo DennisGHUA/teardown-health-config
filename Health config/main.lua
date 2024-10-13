@@ -285,8 +285,15 @@ function draw(dt)
 			screenEffectRedBool = true
 		end
 
+		screenEffectDamageVignetteBool = false
+		if screenEffectDamageVignette == "true" then
+			screenEffectDamageVignetteBool = true
+		end
+
 		if screenEffectDamageBool or screenEffectRedBool then
-			renderEffectRed(modHealth, changeHealthDrain, lastTimePlayedIsDamaged, lastTimePlayedIsDamagedHealingRedScreen, lastTimePlayedIsDamagedHealthLost, damagePrecision, screenEffectRedBool, screenEffectDamageBool)
+			if ThreadHaltToKillPlayer == false then
+				renderEffectRed(modHealth, changeHealthDrain, lastTimePlayedIsDamaged, lastTimePlayedIsDamagedHealingRedScreen, lastTimePlayedIsDamagedHealthLost, damagePrecision, screenEffectRedBool, screenEffectDamageBool, screenEffectDamageVignetteBool)
+			end
 		end
 
 
