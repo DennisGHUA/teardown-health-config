@@ -41,6 +41,9 @@ local godmodeEnabledDefault = "false"
 local godmodeHideText = "false"
 local godmodeTextFadeFrame = 120
 
+
+local killPlayerRunning = false
+
 function init()
 
 	
@@ -182,8 +185,27 @@ end
 -- Called at a fixed update rate, but at the most two times per frame. Time step is always 0.0166667 (60 updates per second). Depending on frame rate it might not be called at all for a particular frame.
 function update(dt)
 	--DebugPrint(modHealth)
+	--if killPlayerRunning then
+	--	DebugPrint("T")
+	--else
+	--	DebugPrint("F")
+	--end
 	--DebugPrint(healthTimeout)
-	
+
+	if modHealth < 0 then
+		modHealth = -1
+	end
+
+	if killPlayerRunning == true then
+		-- Heal it when dead
+		if GetPlayerHealth() > 0 then
+			--DebugPrint("Healing")
+			revivePlayer = 60
+			modHealth = 1
+			lastHealth = 1
+			killPlayerRunning = false
+		end
+	end
 	
 	-- Fade godmode text
 	if godmodeHideText == "true" and godmodeHideText == "true" then
@@ -201,7 +223,7 @@ function update(dt)
 	
 		-- Kill player if health is below 0
 		killPlayer()
-		
+
 		-- Healing timeout
 		if modHealth < 1 and healthTimeout > 0 then
 			healthTimeout = healthTimeout - 1
@@ -358,11 +380,16 @@ end
 local revivePlayer = 10 -- frames
 
 function killPlayer()
+	if killPlayerRunning == true then
+		return
+	end
 	-- Make sure the player dies
 	if modHealth < 0 then
+
 		-- Kill player
 		SetPlayerHealth(0)
 		modHealth = -1
+		killPlayerRunning = true
 
 
 		damageTaken = 0
@@ -374,13 +401,14 @@ function killPlayer()
 		remainingDamage = 0
 		damageTaken = 0
 
-		-- Heal it when dead
-		if modHealth <= 0 and revivePlayer > 0 then
-			revivePlayer = revivePlayer - 1
-		else
-			revivePlayer = 60
-			modHealth = 1
-			lastHealth = 1
+		if killPlayerRunning == true then
+			-- Heal it when dead
+			if GetPlayerHealth() > 0 then
+				revivePlayer = 60
+				modHealth = 1
+				lastHealth = 1
+				killPlayerRunning = false
+			end
 		end
 		
 	end

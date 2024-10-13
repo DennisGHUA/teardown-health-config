@@ -572,7 +572,7 @@ function drawHealthBar()
 			-- Die when out of health
 			if modHealth < 0 then 
 				modHealth = -1
-				SetPlayerHealth(0)
+				--SetPlayerHealth(0)
 			end
 			UiRect(104*modHealth, 16)
 		UiPop()
