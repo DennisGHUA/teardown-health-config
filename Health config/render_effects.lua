@@ -1,5 +1,5 @@
 -- This adds the red screen effect
-function renderEffectRed(modHealth, changeHealthDrain, lastTimePlayedIsDamaged, lastTimePlayedIsDamagedHealingRedScreen, lastTimePlayedIsDamagedHealthLost, damagePrecision, damageEffect)
+function renderEffectRed(modHealth, changeHealthDrain, lastTimePlayedIsDamaged, lastTimePlayedIsDamagedHealingRedScreen, lastTimePlayedIsDamagedHealthLost, damagePrecision, effectRed, effectDamage)
 
 
 
@@ -8,24 +8,41 @@ function renderEffectRed(modHealth, changeHealthDrain, lastTimePlayedIsDamaged, 
 
     local realModHealth = modHealth * changeHealthDrain
 
-    if realModHealth < 0.4 and modHealth < 0.8 or damageEffect == false then
+    --
+    --if effectDamage == false and realModHealth > 0.4 and modHealth > 0.8 then
+    --    return
+    --end
 
-        local alphaValue = 0.4-(realModHealth)
-        if alphaValue > 0.4 then
-            alphaValue = 0.4
+
+    -- Red screen on low health
+    if effectRed then
+        if realModHealth < 0.4 and modHealth < 0.8 then
+
+            local alphaValue = 0.4-(realModHealth)
+            if alphaValue > 0.4 then
+                alphaValue = 0.4
+            end
+
+            damageAlpha = damageAlpha + alphaValue
+
         end
+    end
 
-        damageAlpha = damageAlpha + alphaValue
+    -- Red screen effect on taking damage
+    if effectDamage then
+        if lastTimePlayedIsDamaged < lastTimePlayedIsDamagedHealingRedScreen then -- 60 is 60 frames or 1 seconds
 
-        -- Red screen effect on taking damage
-    elseif lastTimePlayedIsDamaged < lastTimePlayedIsDamagedHealingRedScreen then -- 60 is 60 frames or 1 seconds
+            local initAlphaValue = lastTimePlayedIsDamagedHealthLost / damagePrecision
+            if initAlphaValue < 0.1 then initAlphaValue = 0.1 end
 
-        local initAlphaValue = lastTimePlayedIsDamagedHealthLost / damagePrecision
-        if initAlphaValue < 0.1 then initAlphaValue = 0.1 end
+            local alphaValue = (initAlphaValue*((lastTimePlayedIsDamagedHealthLost/damagePrecision)+0.5)) * (1-(lastTimePlayedIsDamaged/lastTimePlayedIsDamagedHealingRedScreen))
 
-        local alphaValue = (initAlphaValue*((lastTimePlayedIsDamagedHealthLost/damagePrecision)+0.5)) * (1-(lastTimePlayedIsDamaged/lastTimePlayedIsDamagedHealingRedScreen))
+            -- Only use this alpha value if this is higher than the previous
+            if damageAlpha < alphaValue then
+                damageAlpha = damageAlpha + alphaValue
+            end
 
-        damageAlpha = damageAlpha + alphaValue
+        end
     end
 
     -- Constrain alpha to max of 0.5

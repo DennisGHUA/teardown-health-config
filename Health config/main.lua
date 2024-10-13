@@ -265,18 +265,23 @@ function draw(dt)
 
 
 
-		-- Render Damage screen effect if enabled
+		-- Render Damage and Red screen effect if enabled
+		screenEffectDamageBool = false
+		screenEffectRedBool = false
 		if screenEffectDamage == "true" then
-			renderEffectRed(modHealth, changeHealthDrain, lastTimePlayedIsDamaged, lastTimePlayedIsDamagedHealingRedScreen, lastTimePlayedIsDamagedHealthLost, damagePrecision, false)
+			screenEffectDamageBool = true
+		end
+		if screenEffectRed == "true" then
+			screenEffectRedBool = true
 		end
 
-		-- Render red screen effect if enabled
-		if screenEffectRed == "true" then
-			renderEffectRed(modHealth, changeHealthDrain, lastTimePlayedIsDamaged, lastTimePlayedIsDamagedHealingRedScreen, lastTimePlayedIsDamagedHealthLost, damagePrecision, true)
+		if screenEffectDamageBool or screenEffectRedBool then
+			renderEffectRed(modHealth, changeHealthDrain, lastTimePlayedIsDamaged, lastTimePlayedIsDamagedHealingRedScreen, lastTimePlayedIsDamagedHealthLost, damagePrecision, screenEffectRedBool, screenEffectDamageBool)
 		end
+
 
 		-- Render blur screen effect if enabled
-		if screenEffectRed == "true" then
+		if screenEffectBlur == "true" then
 			renderEffectBlur(modHealth, changeHealthDrain)
 		end
 
