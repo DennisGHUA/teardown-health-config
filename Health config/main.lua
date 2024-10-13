@@ -402,6 +402,10 @@ function killPlayer()
 		-- Kill player
 		modHealth = -1
 		SetPlayerHealth(0)
+		--MakeRagdoll(animator)
+
+		-- Hacky workaround for the 1.6 update to trigger the ragdoll
+		Shoot(VecAdd(GetPlayerPos(), Vec(0,3,0)), Vec(0, -1, 0), "bullet", 1, .01)
 
 
 		damageTaken = 0
