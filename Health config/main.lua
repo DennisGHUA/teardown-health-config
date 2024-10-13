@@ -264,9 +264,15 @@ function draw(dt)
 	if godmode == false then
 
 
+
+		-- Render Damage screen effect if enabled
+		if screenEffectDamage == "true" then
+			renderEffectRed(modHealth, changeHealthDrain, lastTimePlayedIsDamaged, lastTimePlayedIsDamagedHealingRedScreen, lastTimePlayedIsDamagedHealthLost, damagePrecision, false)
+		end
+
 		-- Render red screen effect if enabled
 		if screenEffectRed == "true" then
-			renderEffectRed(modHealth, changeHealthDrain, lastTimePlayedIsDamaged, lastTimePlayedIsDamagedHealingRedScreen, lastTimePlayedIsDamagedHealthLost, damagePrecision)
+			renderEffectRed(modHealth, changeHealthDrain, lastTimePlayedIsDamaged, lastTimePlayedIsDamagedHealingRedScreen, lastTimePlayedIsDamagedHealthLost, damagePrecision, true)
 		end
 
 		-- Render blur screen effect if enabled
@@ -299,7 +305,7 @@ function draw(dt)
 			lastTimePlayedIsDamaged = 0
 			--DebugPrint(changeHealthDrain)
 			modHealth = modHealth - (math.floor((damageTaken * (1/changeHealthDrain)) + math.floor(remainingDamage * (1/changeHealthDrain)))/damagePrecision)
-			if modHealth <= 0 then
+			if modHealth < 0 then
 				ThreadHaltToKillPlayer = true
 			end
 			--DebugPrint(currentHealth - lastHealth)
@@ -396,7 +402,7 @@ function killPlayer()
 		return
 	end
 	-- Make sure the player dies
-	if modHealth <= 0 then
+	if modHealth < 0 then
 		killPlayerRunning = true
 
 		-- Kill player

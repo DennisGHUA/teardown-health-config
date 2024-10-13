@@ -1,5 +1,5 @@
 -- This adds the red screen effect
-function renderEffectRed(modHealth, changeHealthDrain, lastTimePlayedIsDamaged, lastTimePlayedIsDamagedHealingRedScreen, lastTimePlayedIsDamagedHealthLost, damagePrecision)
+function renderEffectRed(modHealth, changeHealthDrain, lastTimePlayedIsDamaged, lastTimePlayedIsDamagedHealingRedScreen, lastTimePlayedIsDamagedHealthLost, damagePrecision, damageEffect)
 
 
 
@@ -8,7 +8,7 @@ function renderEffectRed(modHealth, changeHealthDrain, lastTimePlayedIsDamaged, 
 
     local realModHealth = modHealth * changeHealthDrain
 
-    if realModHealth < 0.4 and modHealth < 0.8 then
+    if realModHealth < 0.4 and modHealth < 0.8 or damageEffect == false then
 
         local alphaValue = 0.4-(realModHealth)
         if alphaValue > 0.4 then
